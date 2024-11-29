@@ -209,3 +209,24 @@ sudo systemctl restart nginx
 
 #### Repetir o processo
 1. Repita os passos de Atualização do Nginx, Cópia do HTML, e Reinício do Serviço para as outras duas máquinas.
+
+### Criação e Configuração do Servidor Backend
+#### Criar uma instância EC2, abra a <strong>porta 8080</strong> no <strong>Grupo de Segurança</strong> e acesse-a com o SSH
+1. Acesse a instância com o comando:
+```bash
+ssh -i <caminho/da/chave> <usuario>@<ip-da-maquina>
+```
+
+#### Atualizar o repositório apt e instalar o Docker
+1. Atualize o repositório apt e instale o Docker com os comandos:
+```bash
+sudo apt update
+sudo apt install docker
+```
+
+#### Acessar o diretório do servidor e rodar o Docker
+1. Acesse o diretório do servidor com o comando:
+```bash
+cd FATEC-REDES/projeto
+sudo docker compose up
+```
