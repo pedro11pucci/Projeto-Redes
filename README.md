@@ -230,3 +230,32 @@ sudo apt install docker
 cd FATEC-REDES/projeto
 sudo docker compose up
 ```
+
+### Criação e Configuração da VPN
+#### Abra a porta padrão do OpenVPN (1194) na instância EC2 do seu Load Balancer
+
+#### Acesse a instância EC2 do seu Load Balancer e baixe o script de criação da VPN:
+```bash
+wget https://git.io/vpn -O openvpn-install.sh
+```
+
+#### Torne o script executável e execute-o:
+```bash
+sudo chmod +x openvpn-install.sh
+sudo bash openvpn-install.sh
+```
+
+#### Copie a chave do cliente para o diretório home do usuário padrão da máquina virtual:
+```bash
+sudo cp /root/<chave-do-cliente>.ovpn ~
+```
+
+#### Baixe a chave do cliente para a sua máquina local:
+```bash
+scp -i <caminho/para/chave> <usuario>@<ip-do-load-balancer>:/home/<usuario/<chave-do-cliente>.ovpn .
+```
+
+#### Conecte-se a VPN:
+```bash
+openvpn --config <caminho/da/chave-do-cliente>
+```
