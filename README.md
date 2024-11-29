@@ -99,3 +99,113 @@ server {
 ```bash
 sudo systemctl restart nginx
 ```
+
+### Criação e Configuração dos Servidores Web
+
+#### Criar o Arquivo HTML
+1. Crie um arquivo HTML chamado `index.html` com o seguinte conteúdo:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mensagens</title>
+    <script>
+        const apiUrl = 'http://<ip-do-servidor-backend>:8080/api/mensagem';
+
+        async function fetchMessages() {
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin'
+                });
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar mensagens');
+                }
+                const messages = await response.json();
+                displayMessages(messages);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        function displayMessages(messages) {
+            const messageList = document.getElementById('messageList');
+            messageList.innerHTML = '';
+            messages.forEach(message => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${message.data}: ${message.mensagem}`;
+                messageList.appendChild(listItem);
+            });
+        }
+
+        async function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const mensagem = messageInput.value;
+            const data = new Date().toISOString().split('T')[0];
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mensagem, data })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao enviar mensagem');
+                }
+
+                messageInput.value = '';
+                fetchMessages();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        window.onload = fetchMessages;
+    </script>
+</head>
+<body>
+    <main>
+        <div>
+            <h1>Aplicação</h1>
+            <ul id="messageList"></ul>
+            <input type="text" id="messageInput" placeholder="Digite sua mensagem" />
+            <button onclick="sendMessage()">Enviar</button>
+        </div>
+    </main>
+</body>
+</html>
+```
+
+#### Criação das Instâncias EC2
+1. Crie <strong>3 instâncias EC2</strong> com a configuração necessária.
+2. Acesse uma das instâncias
+```bash
+ssh -i <caminho/da/chave> <usuario>@<ip-da-maquina>
+```
+
+#### Instalar o Nginx
+1. Após acessar uma das instâncias, atualize o repositório <strong>apt</strong> e instale o Nginx:
+```bash
+sudo apt update
+sudo apt-get install nginx
+```
+
+#### Copiar o arquivo HTML para o diretório do Nginx
+1. Copie o arquivo HTML da sua máquina local para o diretório do Nginx na instância EC2:
+```bash
+scp -i <caminho/da/chave> <caminho/do/html> <usuario>@<ip-da-maquina>:/var/www/html
+```
+
+#### Reiniciar o Serviço do Nginx
+1. Após copiar o arquivo, reinicie o serviço do Nginx para que ele sirva o arquivo:
+```bash
+sudo systemctl restart nginx
+```
+
+#### Repetir o processo
+1. Repita os passos de Atualização do Nginx, Cópia do HTML, e Reinício do Serviço para as outras duas máquinas.
