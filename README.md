@@ -41,6 +41,61 @@ Desenvolver uma infraestrutura de rede para a empresa fictícia XPTO, que atenda
 ## Entrega: 
 
 ### Relatório Técnico:
-### Diagrama de topologia da rede:
+#### Diagrama de topologia da rede:
 ![389943997-0115937f-9e65-4ad2-b1eb-cd89a6e64876](https://github.com/user-attachments/assets/a1f198c7-177c-442c-9908-174094710e78)
 
+### Criação e Configuração de Instâncias EC2 para o Load Balancer
+
+#### Criação da Instância EC2
+1. Crie uma instância EC2 com uma chave de acesso.
+2. Configure o **Grupo de Segurança** da instância para que as **Regras de Entrada** permitam acesso geral.
+
+---
+
+#### Acessar a instância com SSH
+Após criar a instância, acesse-a usando o comando:
+
+```bash
+ssh -i <caminho/da/chave> <usuario>@<ip-da-maquina>
+```
+
+#### Atualizar e Instalar o Nginx
+1. Após acessar a máquina, atualize o repositório apt e instale o Nginx com os seguintes comandos:
+```bash
+sudo apt update
+sudo apt install nginx
+```
+
+#### Configurar o Nginx
+1. Crie e edite o arquivo de configuração do Nginx:
+```bash
+sudo vim /etc/nginx/conf.d/redes.conf
+```
+
+2. Adicione o seguinte conteúdo ao arquivo:
+```bash
+upstream frontend_servers {
+    server <IP_do_servidor_web_1>;
+    server <IP_do_servidor_web_2>;
+    server <IP_do_servidor_web_3>;
+}
+
+server {
+    listen 80;
+    server_name <IP_da_maquina_Nginx>;
+
+    location / {
+        proxy_pass http://frontend_servers;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+#### Reiniciar o Serviço do Nginx
+1. Reinicie o serviço do Nginx para aplicar as mundaças:
+```bash
+sudo systemctl restart nginx
+```
